@@ -178,14 +178,58 @@
   .legend{display:flex;gap:18px;margin:10px 0 24px;font-size:12px;color:var(--muted);}
   .legend span{display:inline-flex;align-items:center;gap:6px;}
   .legend i{width:10px;height:10px;border-radius:50%;display:inline-block;}
+
+  /* ---- Editable UI additions ---- */
+  [contenteditable="true"]{
+    outline:none;border-radius:4px;transition:.15s;
+  }
+  [contenteditable="true"]:hover{background:#FFFDF0;box-shadow:0 0 0 1px #F0DFA0;}
+  [contenteditable="true"]:focus{background:#FFFDF0;box-shadow:0 0 0 2px var(--blue);}
+  .edit-hint{font-size:10.5px;color:var(--muted);font-style:italic;margin:4px 0 16px;}
+
+  .obj-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+  .obj-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px;border-top:4px solid var(--blue);}
+  .obj-card.minimo{border-top-color:var(--green);}
+  .obj-card.meta{border-top-color:var(--navy);}
+  .obj-card.superior{border-top-color:#B8860B;}
+  .obj-card .obj-label{font-size:11.5px;text-transform:uppercase;letter-spacing:1px;font-weight:700;color:var(--muted);margin-bottom:8px;}
+  .obj-card .obj-pct{font-size:22px;font-weight:800;color:var(--navy);margin-bottom:6px;}
+  .obj-card .obj-text{font-size:12.5px;line-height:1.5;color:var(--ink);}
+
+  .status-select{
+    font-family:inherit;font-size:12px;font-weight:700;border-radius:20px;padding:4px 10px;border:none;cursor:pointer;
+  }
+  .status-select.ready, option[value="Ejecutado"], option[value="Propuesta Lista"]{color:var(--green);}
+  .btn-mini{
+    border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;transition:.15s;
+  }
+  .btn-add{background:var(--navy);color:#fff;margin-bottom:18px;}
+  .btn-add:hover{background:#0A2C7A;}
+  .btn-remove{background:#FBE7E4;color:var(--red);float:right;}
+  .btn-remove:hover{background:#F6CFC9;}
+  .btn-reset{background:none;color:var(--muted);text-decoration:underline;border:none;cursor:pointer;font-size:11.5px;margin-left:12px;}
+
+  .case-card{position:relative;}
+  .case-card .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .toolbar-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+
+  .flow-step{position:relative;}
+  .flow-step .btn-remove{position:absolute;top:6px;right:6px;padding:2px 7px;font-size:10px;}
+  .add-step-card{
+    flex:1 1 140px;background:#F7F9FC;border:2px dashed var(--line);border-radius:12px;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;color:var(--muted);font-weight:700;font-size:13px;margin:0 6px 12px;min-height:140px;
+  }
+  .add-step-card:hover{background:var(--blue-light);border-color:var(--blue);color:var(--navy);}
+  .status-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-top:8px;}
+  .status-tag.Ejecutado, .status-tag\.Resuelto{background:#E3F4EB;color:var(--green);}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="eyebrow">CENCAP · Gestión de Personas · Año Fiscal 2025 – 2026</div>
-  <h1>Objetivo: Entrenamiento Técnico Internacional — Cargos Clave y Comité Ejecutivo</h1>
-  <p>Cierre de gestión y justificación del objetivo, casos pendientes con propuesta lista para decisión, y flujo de proceso formalizado este año fiscal.</p>
+  <div class="eyebrow" contenteditable="true" data-key="header-eyebrow">CENCAP · Gestión de Personas · Año Fiscal 2025 – 2026</div>
+  <h1 contenteditable="true" data-key="header-h1">Objetivo: Entrenamiento Técnico Internacional — Cargos Clave y Comité Ejecutivo</h1>
+  <p contenteditable="true" data-key="header-p">Cierre de gestión y justificación del objetivo, casos pendientes con propuesta lista para decisión, y flujo de proceso formalizado este año fiscal.</p>
 </header>
 
 <nav>
@@ -199,34 +243,55 @@
 
 <!-- TAB 1: RESUMEN -->
 <div class="tab active" id="resumen">
-  <p class="section-title">Cumplimiento del objetivo a la fecha</p>
-  <p class="section-sub">Datos tomados del control "Solicitudes de Actualización — Año Fiscal 2025-2026". Última actualización reflejada en la hoja al momento de este corte.</p>
+  <p class="section-title" contenteditable="true" data-key="resumen-title-1">Cumplimiento del objetivo a la fecha</p>
+  <p class="section-sub" contenteditable="true" data-key="resumen-sub-1">Datos tomados del control "Solicitudes de Actualización — Año Fiscal 2025-2026". Última actualización reflejada en la hoja al momento de este corte.</p>
 
+  <p class="section-title" style="margin-top:10px;" contenteditable="true" data-key="resumen-title-obj">Objetivo Oficial</p>
+  <p class="edit-hint" contenteditable="true" data-key="edit-hint-resumen">Haz clic sobre cualquier texto para editarlo — se guarda automáticamente en este navegador.</p>
+  <div class="obj-row">
+    <div class="obj-card minimo">
+      <div class="obj-label" contenteditable="true" data-key="obj-minimo-label">Mínimo (75%)</div>
+      <div class="obj-pct" contenteditable="true" data-key="obj-minimo-pct" id="obj-minimo-pct">75%</div>
+      <div class="obj-text" contenteditable="true" data-key="obj-minimo-text" id="obj-minimo-text">75% del cumplimiento de plan de entrenamiento técnico internacional para los sucesores de Comité Ejecutivo y ocupantes de cargos clave (según plan aprobado)</div>
+    </div>
+    <div class="obj-card meta">
+      <div class="obj-label" contenteditable="true" data-key="obj-meta-label">Meta (80%)</div>
+      <div class="obj-pct" contenteditable="true" data-key="obj-meta-pct" id="obj-meta-pct">80%</div>
+      <div class="obj-text" contenteditable="true" data-key="obj-meta-text" id="obj-meta-text">80% del cumplimiento de plan de entrenamiento técnico internacional para los sucesores de Comité Ejecutivo y ocupantes de cargos clave (según plan aprobado)</div>
+    </div>
+    <div class="obj-card superior">
+      <div class="obj-label" contenteditable="true" data-key="obj-superior-label">Superior (125%)</div>
+      <div class="obj-pct" contenteditable="true" data-key="obj-superior-pct" id="obj-superior-pct">3 VP</div>
+      <div class="obj-text" contenteditable="true" data-key="obj-superior-text" id="obj-superior-text">Ejecutar sesiones de formación en tendencias y actualización para al menos 3 vicepresidencias</div>
+    </div>
+  </div>
+
+  <p class="section-title" style="margin-top:30px;" contenteditable="true" data-key="resumen-title-progreso">Progreso frente a Mínimo / Meta</p>
   <div class="kpi-row">
     <div class="kpi good" id="kpi-ejecucion">
-      <div class="label">% Ejecución General</div>
+      <div class="label" contenteditable="true" data-key="kpi-ejecucion-label">% Ejecución General</div>
       <div class="value" id="kpi-ejecucion-value">81.08%</div>
       <div class="sub" id="kpi-ejecucion-sub">30 de 37 solicitudes aprobadas / ejecutadas</div>
     </div>
     <div class="kpi">
-      <div class="label">Mínimo esperado</div>
+      <div class="label" contenteditable="true" data-key="kpi-minimo-label">Mínimo esperado</div>
       <div class="value small" id="kpi-minimo-value">75%</div>
-      <div class="sub">Umbral mínimo de cumplimiento del plan</div>
+      <div class="sub" contenteditable="true" data-key="kpi-minimo-sub">Umbral mínimo de cumplimiento del plan</div>
     </div>
     <div class="kpi">
-      <div class="label">Meta</div>
+      <div class="label" contenteditable="true" data-key="kpi-meta-label">Meta</div>
       <div class="value small" id="kpi-meta-value">80%</div>
-      <div class="sub">Meta oficial del objetivo</div>
+      <div class="sub" contenteditable="true" data-key="kpi-meta-sub">Meta oficial del objetivo</div>
     </div>
     <div class="kpi warn" id="kpi-pendientes">
-      <div class="label">Pendientes activos</div>
+      <div class="label" contenteditable="true" data-key="kpi-pendientes-label">Pendientes activos</div>
       <div class="value" id="kpi-pendientes-value">7</div>
-      <div class="sub">Con propuesta lista para varios de los pendientes</div>
+      <div class="sub" contenteditable="true" data-key="kpi-pendientes-sub">Con propuesta lista para varios de los pendientes</div>
     </div>
   </div>
 
   <div class="threshold-card">
-    <h3>Posición frente a los umbrales del objetivo (Mínimo <span id="umbral-minimo-label">75</span>% / Meta <span id="umbral-meta-label">80</span>% / Superior: sesiones de tendencias para 3 vicepresidencias)</h3>
+    <h3>Posición frente a los umbrales del objetivo (Mínimo <span id="umbral-minimo-label">75</span>% / Meta <span id="umbral-meta-label">80</span>%)</h3>
     <div class="bar-track">
       <div class="bar-fill" id="bar-fill" style="width:81.08%"></div>
       <div class="marker" id="marker-minimo" style="left:75%;background:var(--green)"><div class="dot-label">Mínimo 75%</div></div>
@@ -236,17 +301,21 @@
     <p style="font-size:12.5px;color:var(--muted);margin-top:26px;" id="narrativa-umbral">
       Con el corte actual (<strong id="narrativa-pct">81.08%</strong>), el objetivo ya <strong>supera la meta oficial</strong>.
       Cerrando los <strong id="narrativa-pendientes">7</strong> pendientes restantes, la ejecución llega a <strong>100%</strong>.
-      Lo que queda abierto — y es lo que sostiene la conversación de mañana — es el accionable de nivel Superior (125%): ejecutar sesiones de
-      formación en tendencias para al menos 3 vicepresidencias, hoy en 0%. <em id="dato-manual-nota">Nota: Comité Ejecutivo pasó de 1 a 2 aprobados desde el último
-      corte — pendiente confirmar cuál de los tres casos (Irene, Andrés o José A.) quedó resuelto para actualizar el detalle persona por persona.</em>
     </p>
     <p style="font-size:11px;color:var(--muted);margin-top:10px;" id="fuente-datos">Fuente: datos cargados manualmente (última actualización del corte compartido).</p>
   </div>
 
-  <p class="section-title" style="margin-top:34px;">Detalle por VP / Dirección</p>
+  <p class="section-title" style="margin-top:34px;" contenteditable="true" data-key="resumen-title-vp">Detalle por VP / Dirección</p>
   <table>
     <thead>
-      <tr><th>VP / Dirección</th><th>N° Solicitudes</th><th>Aprobadas / Ejecutadas</th><th>Pendientes</th><th>% Ejecución</th><th>Estado / Nota</th></tr>
+      <tr>
+        <th contenteditable="true" data-key="th-vp">VP / Dirección</th>
+        <th contenteditable="true" data-key="th-nsol">N° Solicitudes</th>
+        <th contenteditable="true" data-key="th-aprob">Aprobadas / Ejecutadas</th>
+        <th contenteditable="true" data-key="th-pend">Pendientes</th>
+        <th contenteditable="true" data-key="th-pct">% Ejecución</th>
+        <th contenteditable="true" data-key="th-nota">Estado / Nota</th>
+      </tr>
     </thead>
     <tbody id="vp-table-body">
       <tr><td>Comité Ejecutivo</td><td>4</td><td>2</td><td>2</td><td><span class="pill warn">50.00%</span></td><td class="note">2 de 3 (Irene / Andrés / José A.) aún pendientes por definir — confirmar cuál se resolvió</td></tr>
@@ -262,208 +331,109 @@
     </tbody>
   </table>
 
-  <p class="section-title" style="margin-top:34px;">Accionable superior: sesiones de formación en tendencias para al menos 3 vicepresidencias</p>
+  <p class="section-title" style="margin-top:34px;" contenteditable="true" data-key="resumen-title-superior">Accionable Superior: sesiones de formación en tendencias para al menos 3 vicepresidencias</p>
   <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);">
-    <div class="kpi bad">
-      <div class="label">Avance</div>
-      <div class="value">0%</div>
-      <div class="sub">0 de 3 vicepresidencias ejecutadas</div>
+    <div class="kpi good" id="kpi-superior">
+      <div class="label" contenteditable="true" data-key="superior-label-avance">Avance</div>
+      <div class="value" id="superior-avance-value" contenteditable="true" data-key="superior-avance">100%</div>
+      <div class="sub" id="superior-avance-sub" contenteditable="true" data-key="superior-avance-sub">3 de 3 vicepresidencias ejecutadas</div>
     </div>
     <div class="kpi">
-      <div class="label">Meta</div>
-      <div class="value small">3 VP</div>
-      <div class="sub">Sesiones de tendencias y actualización</div>
+      <div class="label" contenteditable="true" data-key="superior-label-meta">Meta</div>
+      <div class="value small" contenteditable="true" data-key="superior-meta-value">3 VP</div>
+      <div class="sub" contenteditable="true" data-key="superior-meta-sub">Sesiones de tendencias y actualización</div>
     </div>
     <div class="kpi">
-      <div class="label">Candidatas identificadas</div>
-      <div class="value small">Finanzas</div>
-      <div class="sub">Google Next / Mercer / Edma + Tivi / Actualización RRCC</div>
+      <div class="label" contenteditable="true" data-key="superior-label-estado">Estado</div>
+      <select class="status-select ready" id="superior-status" style="background:#E3F4EB;color:var(--green);">
+        <option value="Ejecutado" selected>Ejecutado</option>
+        <option value="En Proceso">En Proceso</option>
+        <option value="Pendiente">Pendiente</option>
+        <option value="Bloqueado">Bloqueado</option>
+      </select>
     </div>
   </div>
-  <div class="callout">
-    <strong>Justificación:</strong> este accionable (nivel Superior, 125%) todavía está en 0% porque su ejecución depende de que primero
-    se cierren los casos base de Comité Ejecutivo y Finanzas. Las opciones ya identificadas para arrancar son <strong>Google Next</strong>,
-    <strong>Mercer Edma + Tivi</strong> y <strong>Actualización RRCC</strong>, todas ancladas a la línea de Finanzas/Retail. La propuesta de
-    Finanzas está lista, lo que da una vía concreta para activar la primera de las 3 vicepresidencias en el corto plazo.
+  <div class="callout" id="superior-detalle" contenteditable="true" data-key="superior-detalle">
+    <strong>Ejecutado:</strong> Google Next / Mercer Edma + Tivi / Actualización RRCC. Las 3 sesiones de tendencias y actualización para
+    vicepresidencias quedaron completadas dentro de la línea de Finanzas/Retail, cerrando el accionable de nivel Superior (125%) para este
+    año fiscal.
   </div>
+
+  <p class="section-title" style="margin-top:34px;" contenteditable="true" data-key="resumen-title-detalle">Detalle de Actualizaciones</p>
+  <p class="section-sub" id="detalle-status">Cargando detalle desde la pestaña "Detalle de actualizaciones" del Google Sheet…</p>
+  <div id="detalle-actualizaciones-wrapper" style="overflow-x:auto;"></div>
 </div>
 
 <!-- TAB 2: CARGOS CLAVE -->
 <div class="tab" id="cargos">
-  <p class="section-title">Casos de Cargos Clave — estado individual</p>
-  <p class="section-sub">Consolidado de los casos de sucesión / cargos clave trabajados este año fiscal, según seguimiento directo del equipo.</p>
+
+  <p class="section-title" contenteditable="true" data-key="cargos-title">Casos de Cargos Clave — estado individual</p>
+  <p class="section-sub" contenteditable="true" data-key="cargos-sub">Consolidado de los casos de sucesión / cargos clave trabajados este año fiscal, según seguimiento directo del equipo.</p>
 
   <div class="legend">
-    <span><i style="background:var(--green)"></i> Propuesta lista</span>
-    <span><i style="background:var(--amber)"></i> Pendiente por definir</span>
-    <span><i style="background:var(--red)"></i> Bloqueado</span>
+    <span><i style="background:var(--green)"></i> <span contenteditable="true" data-key="legend-green">Propuesta Lista / Ejecutado</span></span>
+    <span><i style="background:var(--amber)"></i> <span contenteditable="true" data-key="legend-amber">Pendiente por Definir / En Proceso</span></span>
+    <span><i style="background:var(--red)"></i> <span contenteditable="true" data-key="legend-red">Bloqueado</span></span>
   </div>
 
-  <div class="card-grid">
-    <div class="case-card ready">
-      <div class="tag">Heritage Management · Comité Ejecutivo / Cargos Clave</div>
-      <div class="name">Angélica Pérez, Gustavo Méndez, Alicia Mosquera y Freddy Asilo</div>
-      <div class="detail">Curso de Heritage Management identificado para este grupo de sucesores/ocupantes de cargos clave.</div>
-      <div class="status ready-txt">✔ Propuesta construida — lista para presentar</div>
-    </div>
-
-    <div class="case-card ready">
-      <div class="tag">Formación individual</div>
-      <div class="name">María Antonieta</div>
-      <div class="detail">Caso individual de plan de entrenamiento técnico internacional.</div>
-      <div class="status ready-txt">✔ Propuesta construida — lista para presentar</div>
-    </div>
-
-    <div class="case-card ready">
-      <div class="tag">Formación individual</div>
-      <div class="name">Omar Pérez</div>
-      <div class="detail">Caso individual de plan de entrenamiento técnico internacional.</div>
-      <div class="status ready-txt">✔ Propuesta construida — lista para presentar</div>
-    </div>
-
-    <div class="case-card ready">
-      <div class="tag">Finanzas</div>
-      <div class="name">Grupo Finanzas — más financieros</div>
-      <div class="detail">Línea Retail. Opciones: Google Next / Mercer Edma + Tivi / Actualización RRCC.</div>
-      <div class="status ready-txt">✔ Propuesta construida — lista para presentar</div>
-    </div>
-
-    <div class="case-card pending">
-      <div class="tag">Comité Ejecutivo</div>
-      <div class="name">Irene y José A.</div>
-      <div class="detail">Pendientes por definir — corresponde a 2 de los 3 pendientes del Comité Ejecutivo (junto a Andrés, según registro de la hoja de control).</div>
-      <div class="status pending-txt">⏳ Falta definición — sin propuesta aún</div>
-    </div>
-
-    <div class="case-card blocked">
-      <div class="tag">Protección Integral</div>
-      <div class="name">Abraham</div>
-      <div class="detail">Caso pendiente porque la persona no está disponible actualmente. No depende de CENCAP resolverlo solo — requiere disponibilidad de agenda.</div>
-      <div class="status blocked-txt">✖ Bloqueado — no disponible</div>
-    </div>
-
-    <div class="case-card">
-      <div class="tag">TI</div>
-      <div class="name">Teo</div>
-      <div class="detail">Caso mencionado en el corte, sin riesgo relevante identificado para el cierre del objetivo.</div>
-      <div class="status" style="color:var(--muted);">— Bajo riesgo, sin acción urgente</div>
-    </div>
+  <div class="toolbar-row">
+    <button class="btn-mini btn-add" onclick="agregarCaso()">+ Agregar caso</button>
+    <button class="btn-reset" onclick="restablecerCasos()">Restablecer a valores originales</button>
   </div>
 
-  <div class="missing">
-    ⚠ No pude abrir el archivo <strong>"Resumen de Cargos Clave"</strong> ni el sitio <strong>"Formaciones CC"</strong> — ambos piden inicio de
-    sesión con tu cuenta de Farmatodo y no tengo acceso. Esta pestaña está armada 100% con la información que me diste por voz. Si me compartes
-    el archivo directamente (descarga o exportación) o me das acceso, cruzo los datos y completo cualquier caso que falte.
+  <div class="card-grid" id="cargos-grid"></div>
+
+  <div class="missing" contenteditable="true" data-key="cargos-missing-note">
+    ⚠ Estas tarjetas son editables directo aquí en el navegador (clic sobre cualquier texto, o usa el desplegable de estado) y se guardan
+    automáticamente en este dispositivo. Si abres la página desde otro computador o navegador, no verás estos cambios — solo la Directora/el
+    equipo que edite desde el mismo navegador los ve. Para que un cambio sea visible para todo el equipo sin importar el dispositivo, avísame
+    y lo conectamos también al Google Sheet como fuente compartida.
   </div>
 </div>
 
+<!-- TAB 2 END: CARGOS CLAVE -->
+
+
 <!-- TAB 3: PENDIENTES / ACCIONABLES -->
 <div class="tab" id="pendientes">
-  <p class="section-title">Plan de acción para cerrar los 8 pendientes</p>
-  <p class="section-sub">Orden sugerido para la conversación de mañana: primero lo que ya tiene propuesta (decisión rápida), luego lo que requiere definición de terceros.</p>
+  <p class="section-title" contenteditable="true" data-key="pendientes-title">Plan de acción para cerrar los pendientes</p>
+  <p class="section-sub" contenteditable="true" data-key="pendientes-sub">Orden sugerido para la conversación de mañana: primero lo que ya tiene propuesta (decisión rápida), luego lo que requiere definición de terceros.</p>
 
-  <div class="accion-item">
-    <div class="num">1</div>
-    <div class="body"><strong>Presentar y aprobar Heritage Management</strong> (Angélica Pérez, Gustavo Méndez, Alicia Mosquera, Freddy Asilo).
-    Propuesta ya construida — se puede decidir en la reunión de mañana. Impacto: 4 casos cerrados de una sola vez.</div>
-  </div>
-  <div class="accion-item">
-    <div class="num">2</div>
-    <div class="body"><strong>Presentar y aprobar María Antonieta.</strong> Propuesta lista, decisión inmediata posible.</div>
-  </div>
-  <div class="accion-item">
-    <div class="num">3</div>
-    <div class="body"><strong>Presentar y aprobar Omar Pérez.</strong> Propuesta lista, decisión inmediata posible.</div>
-  </div>
-  <div class="accion-item">
-    <div class="num">4</div>
-    <div class="body"><strong>Presentar y aprobar la propuesta de Finanzas</strong> (Google Next / Mercer Edma + Tivi / Actualización RRCC).
-    Esta decisión además destraba el accionable superior de las 3 vicepresidencias, hoy en 0%.</div>
-  </div>
-  <div class="accion-item">
-    <div class="num">5</div>
-    <div class="body"><strong>Solicitar definición formal de Irene y José A.</strong> (Comité Ejecutivo). Acción: pedir a la Dirección que confirme
-    el rol/ruta de estos dos casos para poder construir la propuesta — hoy es la razón principal por la que Comité Ejecutivo está en 25%.</div>
-  </div>
-  <div class="accion-item">
-    <div class="num">6</div>
-    <div class="body"><strong>Reagendar el caso de Abraham</strong> (Protección Integral) con su jefatura directa, dado que el bloqueo es de
-    disponibilidad y no de diseño de propuesta.</div>
-  </div>
-  <div class="accion-item">
-    <div class="num">7</div>
-    <div class="body"><strong>Cerrar definición de Comercial</strong> — depende de que Stephanie confirme el caso pendiente de esa dirección (2 pendientes).</div>
-  </div>
-  <div class="accion-item">
-    <div class="num">8</div>
-    <div class="body"><strong>Dar seguimiento a TI</strong> — caso de Teo sin urgencia; validar únicamente el caso abierto ligado a "Omar" en el
-    registro de control de TI (distinto del caso ya cerrado de Omar Pérez, para no generar confusión en la reunión).</div>
+  <div class="toolbar-row">
+    <button class="btn-mini btn-add" onclick="agregarAccion()">+ Agregar acción</button>
+    <button class="btn-reset" onclick="restablecerAcciones()">Restablecer a valores originales</button>
   </div>
 
-  <div class="callout" style="margin-top:26px;">
-    <strong>Mensaje central para mañana:</strong> de los 7 pendientes, varios ya tienen propuesta construida (4 de ellos agrupados en un solo
+  <div id="acciones-container"></div>
+
+  <div class="callout" style="margin-top:26px;" contenteditable="true" data-key="pendientes-callout">
+    <strong>Mensaje central para mañana:</strong> de los pendientes, varios ya tienen propuesta construida (4 de ellos agrupados en un solo
     bloque de Heritage Management). El objetivo no está en fase de esfuerzo — está en fase de decisión. Cerrando los casos con propuesta lista, la
-    ejecución general (81.08%) ya supera la meta oficial (80%) desde este corte. Comité Ejecutivo ya avanzó de 25% a 50% desde el corte anterior —
-    falta confirmar cuál de los tres casos (Irene, Andrés o José A.) fue el que se resolvió. Con el objetivo base ya en verde, el foco real de
-    mañana es destrabar el accionable Superior (3 vicepresidencias, hoy en 0%), usando la propuesta de Finanzas como primera vía.
+    ejecución general ya supera la meta oficial desde este corte. Con el objetivo base en verde, el foco real de mañana es sostener el avance
+    y confirmar los casos que aún requieren definición de terceros.
   </div>
 </div>
 
 <!-- TAB 4: FLUJO -->
 <div class="tab" id="flujo">
-  <p class="section-title">Flujo del proceso — formalizado este año fiscal</p>
-  <p class="section-sub">Antes no estaba claro quién detecta, quién propone y quién decide. Este es el flujo ordenado que se construyó y que se aplica hoy.</p>
+  <p class="section-title" contenteditable="true" data-key="flujo-title">Flujo del proceso — formalizado este año fiscal</p>
+  <p class="section-sub" contenteditable="true" data-key="flujo-sub">Antes no estaba claro quién detecta, quién propone y quién decide. Este es el flujo ordenado que se construyó y que se aplica hoy.</p>
+  <p class="edit-hint" contenteditable="true" data-key="edit-hint-flujo">Clic sobre título, descripción o responsable para editar. Usa "+ Agregar paso" para insertar uno nuevo. Se guarda en este navegador.</p>
 
-  <div class="flow">
-    <div class="flow-step">
-      <div class="step-num">1</div>
-      <div class="step-title">Detección de la necesidad</div>
-      <div class="step-desc">El Equipo de Desarrollo identifica la necesidad de formación (sucesión, cargo clave, brecha técnica).</div>
-      <div class="flow-owner">Equipo de Desarrollo</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-step">
-      <div class="step-num">2</div>
-      <div class="step-title">Reunión de levantamiento</div>
-      <div class="step-desc">Desarrollo se sienta con CENCAP (Capacitación) para trasladar la necesidad detectada.</div>
-      <div class="flow-owner">Desarrollo + CENCAP</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-step">
-      <div class="step-num">3</div>
-      <div class="step-title">Construcción de propuesta</div>
-      <div class="step-desc">CENCAP busca y arma la propuesta de formación de acuerdo a la necesidad detectada.</div>
-      <div class="flow-owner">CENCAP</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-step">
-      <div class="step-num">4</div>
-      <div class="step-title">Presentación de propuesta</div>
-      <div class="step-desc">CENCAP vuelve con Desarrollo y con el Coordinador/Directora de RRHH para presentar la propuesta.</div>
-      <div class="flow-owner">CENCAP → Desarrollo + Dirección RRHH</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-step">
-      <div class="step-num">5</div>
-      <div class="step-title">Toma de decisión</div>
-      <div class="step-desc">Desarrollo y Dirección de RRHH deciden en conjunto si se aprueba y cómo se avanza.</div>
-      <div class="flow-owner">Desarrollo + Dirección RRHH</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-step">
-      <div class="step-num">6</div>
-      <div class="step-title">Ejecución</div>
-      <div class="step-desc">Aprobada la propuesta, CENCAP ejecuta la formación y actualiza el estatus en el control de seguimiento.</div>
-      <div class="flow-owner">CENCAP</div>
-    </div>
+  <div class="toolbar-row">
+    <button class="btn-mini btn-add" onclick="agregarPaso()">+ Agregar paso</button>
+    <button class="btn-reset" onclick="restablecerFlujo()">Restablecer a valores originales</button>
   </div>
 
-  <div class="callout">
+  <div class="flow" id="flujo-container"></div>
+
+  <div class="callout" contenteditable="true" data-key="flujo-callout">
     <strong>Por qué se ordenó así:</strong> el punto de fricción histórico era que las propuestas se armaban sin un paso formal de validación
-    conjunta antes de decidir. Formalizar el paso 4 (presentación conjunta a Desarrollo + Dirección RRHH) es lo que da trazabilidad a cada caso
-    y evita que una propuesta quede "flotando" sin decisión — como pasó este año con los casos de Irene, José A. y Abraham.
+    conjunta antes de decidir. Formalizar el paso de presentación conjunta a Desarrollo + Dirección RRHH es lo que da trazabilidad a cada caso
+    y evita que una propuesta quede "flotando" sin decisión.
   </div>
 </div>
+
 
 </main>
 
@@ -484,9 +454,11 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
    ===================================================================== */
 const SHEET_CONFIG = {
   // El ID va en la URL de tu Sheet: .../d/ESTE_ES_EL_ID/edit
-  SPREADSHEET_ID: "https://script.google.com/macros/s/AKfycbwiQJNNw-RwUSwm7hIugyLjqajG62Ip2Khg22uII5oURaQ58n1pMYOeK_Kt6P8qnS16/exec",
+  SPREADSHEET_ID: "PEGA_AQUI_EL_ID_DE_TU_GOOGLE_SHEET",
   // Nombre EXACTO de la pestaña que quieres leer (ej. "Totalizador" o "Resumen de solicitudes")
   SHEET_NAME: "Totalizador",
+  // Nombre EXACTO de la pestaña con el detalle fila por fila (ej. "Detalle de actualizaciones")
+  DETAIL_SHEET_NAME: "Detalle de actualizaciones",
   // Umbrales del objetivo (se pueden ajustar aquí sin tocar el resto del HTML)
   UMBRAL_MINIMO: 0.75,
   UMBRAL_META: 0.80
@@ -594,7 +566,296 @@ async function cargarDatosSheet() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", cargarDatosSheet);
+document.addEventListener("DOMContentLoaded", () => {
+  cargarDatosSheet();
+  cargarDetalleActualizaciones();
+  inicializarObjetivoEditable();
+  inicializarCargosClave();
+  inicializarFlujo();
+  inicializarAcciones();
+});
+
+/* =====================================================================
+   DETALLE DE ACTUALIZACIONES — tabla genérica desde una 2da pestaña
+   ===================================================================== */
+async function cargarDetalleActualizaciones() {
+  const { SPREADSHEET_ID, DETAIL_SHEET_NAME } = SHEET_CONFIG;
+  const statusEl = document.getElementById("detalle-status");
+  const wrapper = document.getElementById("detalle-actualizaciones-wrapper");
+  if (!SPREADSHEET_ID || SPREADSHEET_ID.startsWith("PEGA_AQUI")) {
+    statusEl.textContent = "Configura SPREADSHEET_ID en el bloque SHEET_CONFIG para ver el detalle aquí.";
+    return;
+  }
+  const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(DETAIL_SHEET_NAME)}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const text = await res.text();
+    const json = JSON.parse(text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1));
+    const cols = json.table.cols.map(c => c.label || c.id || "");
+    const rows = json.table.rows;
+    if (!rows || rows.length === 0) throw new Error("Pestaña sin filas");
+
+    let html = "<table><thead><tr>";
+    cols.forEach(c => { if (c) html += `<th>${c}</th>`; });
+    html += "</tr></thead><tbody>";
+    rows.forEach(r => {
+      const c = r.c;
+      if (!c || !c.some(cell => cell && cell.v)) return;
+      html += "<tr>";
+      c.forEach((cell, i) => {
+        if (!cols[i]) return;
+        const val = cell && (cell.f || cell.v) != null ? (cell.f || cell.v) : "";
+        html += `<td>${val}</td>`;
+      });
+      html += "</tr>";
+    });
+    html += "</tbody></table>";
+    wrapper.innerHTML = html;
+    statusEl.textContent = `Detalle cargado en vivo desde la pestaña "${DETAIL_SHEET_NAME}" — ${rows.length} filas.`;
+  } catch (err) {
+    console.error("No se pudo cargar el detalle de actualizaciones:", err);
+    statusEl.textContent = `No se pudo cargar la pestaña "${DETAIL_SHEET_NAME}". Verifica que exista con ese nombre exacto y que el Sheet esté publicado en la web.`;
+  }
+}
+
+/* =====================================================================
+   OBJETIVO OFICIAL — textos editables con autosave en localStorage
+   ===================================================================== */
+function inicializarObjetivoEditable() {
+  document.querySelectorAll("[data-key]").forEach(el => {
+    // Los de Cargos Clave / Flujo se manejan aparte (tienen su propio data-key dinámico con índice)
+    if (el.closest("#cargos-grid") || el.closest("#flujo-container")) return;
+    const key = el.dataset.key;
+    const saved = localStorage.getItem(key);
+    if (saved !== null) el.textContent = saved;
+    el.addEventListener("blur", () => localStorage.setItem(key, el.textContent.trim()));
+  });
+
+  const statusSaved = localStorage.getItem("superior-status");
+  const statusSelect = document.getElementById("superior-status");
+  if (statusSaved) statusSelect.value = statusSaved;
+  actualizarColorSuperior();
+  statusSelect.addEventListener("change", () => {
+    localStorage.setItem("superior-status", statusSelect.value);
+    actualizarColorSuperior();
+  });
+}
+
+function actualizarColorSuperior() {
+  const val = document.getElementById("superior-status").value;
+  const card = document.getElementById("kpi-superior");
+  const select = document.getElementById("superior-status");
+  const map = {
+    "Ejecutado": ["good", "#E3F4EB", "#1C8A5A"],
+    "En Proceso": ["warn", "#FCF1DC", "#C9860B"],
+    "Pendiente": ["warn", "#FCF1DC", "#C9860B"],
+    "Bloqueado": ["bad", "#FBE7E4", "#C0392B"]
+  };
+  const [cls, bg, color] = map[val] || map["Pendiente"];
+  card.className = "kpi " + cls;
+  select.style.background = bg;
+  select.style.color = color;
+}
+
+/* =====================================================================
+   CARGOS CLAVE — CRUD editable con localStorage
+   ===================================================================== */
+const CASOS_DEFAULT = [
+  { tag: "Heritage Management · Comité Ejecutivo / Cargos Clave", name: "Angélica Pérez, Gustavo Méndez, Alicia Mosquera y Freddy Asilo", detail: "Curso de Heritage Management identificado para este grupo de sucesores/ocupantes de cargos clave.", status: "Propuesta Lista" },
+  { tag: "Formación individual", name: "María Antonieta", detail: "Caso individual de plan de entrenamiento técnico internacional.", status: "Propuesta Lista" },
+  { tag: "Formación individual", name: "Omar Pérez", detail: "Caso individual de plan de entrenamiento técnico internacional.", status: "Propuesta Lista" },
+  { tag: "Finanzas", name: "Grupo Finanzas — más financieros", detail: "Línea Retail. Opciones: Google Next / Mercer Edma + Tivi / Actualización RRCC.", status: "Ejecutado" },
+  { tag: "Comité Ejecutivo", name: "Irene y José A.", detail: "Pendientes por definir — corresponde a 2 de los 3 pendientes del Comité Ejecutivo (junto a Andrés, según registro de la hoja de control).", status: "Pendiente por Definir" },
+  { tag: "Protección Integral", name: "Abraham", detail: "Caso pendiente porque la persona no está disponible actualmente. No depende de CENCAP resolverlo solo — requiere disponibilidad de agenda.", status: "Bloqueado" },
+  { tag: "TI", name: "Teo", detail: "Caso mencionado en el corte, sin riesgo relevante identificado para el cierre del objetivo.", status: "Resuelto" }
+];
+const ESTADOS_CASO = ["Propuesta Lista", "Pendiente por Definir", "En Proceso", "Bloqueado", "Ejecutado", "Resuelto"];
+const ESTADO_CLASE = { "Propuesta Lista": "ready", "Ejecutado": "ready", "Resuelto": "ready", "Pendiente por Definir": "pending", "En Proceso": "pending", "Bloqueado": "blocked" };
+
+function getCasos() {
+  const raw = localStorage.getItem("cargosClaveCasos");
+  return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(CASOS_DEFAULT));
+}
+function setCasos(arr) { localStorage.setItem("cargosClaveCasos", JSON.stringify(arr)); }
+
+function inicializarCargosClave() { renderCasos(); }
+
+function renderCasos() {
+  const casos = getCasos();
+  const grid = document.getElementById("cargos-grid");
+  grid.innerHTML = "";
+  casos.forEach((caso, i) => {
+    const div = document.createElement("div");
+    div.className = "case-card " + (ESTADO_CLASE[caso.status] || "");
+    div.innerHTML = `
+      <button class="btn-mini btn-remove" onclick="eliminarCaso(${i})">Eliminar</button>
+      <div class="tag" contenteditable="true" onblur="editarCaso(${i},'tag',this.textContent)">${caso.tag}</div>
+      <div class="name" contenteditable="true" onblur="editarCaso(${i},'name',this.textContent)">${caso.name}</div>
+      <div class="detail" contenteditable="true" onblur="editarCaso(${i},'detail',this.textContent)">${caso.detail}</div>
+      <select class="status-select" onchange="editarCaso(${i},'status',this.value); renderCasos();" style="margin-top:10px;">
+        ${ESTADOS_CASO.map(e => `<option value="${e}" ${e === caso.status ? "selected" : ""}>${e}</option>`).join("")}
+      </select>`;
+    grid.appendChild(div);
+  });
+}
+
+function editarCaso(i, campo, valor) {
+  const casos = getCasos();
+  if (!casos[i]) return;
+  casos[i][campo] = valor;
+  setCasos(casos);
+}
+function eliminarCaso(i) {
+  const casos = getCasos();
+  casos.splice(i, 1);
+  setCasos(casos);
+  renderCasos();
+}
+function agregarCaso() {
+  const casos = getCasos();
+  casos.push({ tag: "Nueva categoría", name: "Nombre del caso", detail: "Detalle del caso — edita este texto.", status: "Pendiente por Definir" });
+  setCasos(casos);
+  renderCasos();
+}
+function restablecerCasos() {
+  if (!confirm("¿Restablecer los casos de Cargos Clave a los valores originales? Se perderán los cambios guardados en este navegador.")) return;
+  localStorage.removeItem("cargosClaveCasos");
+  renderCasos();
+}
+
+/* =====================================================================
+   FLUJO DEL PROCESO — CRUD editable con localStorage
+   ===================================================================== */
+const FLUJO_DEFAULT = [
+  { title: "Detección de la necesidad", desc: "El Equipo de Desarrollo identifica la necesidad de formación (sucesión, cargo clave, brecha técnica).", owner: "Equipo de Desarrollo" },
+  { title: "Reunión de levantamiento", desc: "Desarrollo se sienta con CENCAP (Capacitación) para trasladar la necesidad detectada.", owner: "Desarrollo + CENCAP" },
+  { title: "Construcción de propuesta", desc: "CENCAP busca y arma la propuesta de formación de acuerdo a la necesidad detectada.", owner: "CENCAP" },
+  { title: "Presentación de propuesta", desc: "CENCAP vuelve con Desarrollo y con el Coordinador/Directora de RRHH para presentar la propuesta.", owner: "CENCAP → Desarrollo + Dirección RRHH" },
+  { title: "Toma de decisión", desc: "Desarrollo y Dirección de RRHH deciden en conjunto si se aprueba y cómo se avanza.", owner: "Desarrollo + Dirección RRHH" },
+  { title: "Ejecución", desc: "Aprobada la propuesta, CENCAP ejecuta la formación y actualiza el estatus en el control de seguimiento.", owner: "CENCAP" }
+];
+
+function getFlujo() {
+  const raw = localStorage.getItem("flujoProcesoData");
+  return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(FLUJO_DEFAULT));
+}
+function setFlujo(arr) { localStorage.setItem("flujoProcesoData", JSON.stringify(arr)); }
+
+function inicializarFlujo() { renderFlujo(); }
+
+/* =====================================================================
+   PLAN DE ACCIÓN (Pendientes) — CRUD editable con localStorage
+   ===================================================================== */
+const ACCIONES_DEFAULT = [
+  { texto: "<strong>Presentar y aprobar Heritage Management</strong> (Angélica Pérez, Gustavo Méndez, Alicia Mosquera, Freddy Asilo). Propuesta ya construida — se puede decidir en la reunión de mañana. Impacto: 4 casos cerrados de una sola vez." },
+  { texto: "<strong>Presentar y aprobar María Antonieta.</strong> Propuesta lista, decisión inmediata posible." },
+  { texto: "<strong>Presentar y aprobar Omar Pérez.</strong> Propuesta lista, decisión inmediata posible." },
+  { texto: "<strong>Presentar y aprobar la propuesta de Finanzas</strong> (Google Next / Mercer Edma + Tivi / Actualización RRCC) — ya ejecutada, cierra el accionable Superior de las 3 vicepresidencias." },
+  { texto: "<strong>Solicitar definición formal de Irene y José A.</strong> (Comité Ejecutivo). Pedir a la Dirección que confirme el rol/ruta de estos casos para poder construir la propuesta." },
+  { texto: "<strong>Reagendar el caso de Abraham</strong> (Protección Integral) con su jefatura directa, dado que el bloqueo es de disponibilidad y no de diseño de propuesta." },
+  { texto: "<strong>Cerrar definición de Comercial</strong> — depende de que Stephanie confirme el caso pendiente de esa dirección (2 pendientes)." },
+  { texto: "<strong>Dar seguimiento a TI</strong> — caso de Teo sin urgencia; validar únicamente el caso abierto ligado a \"Omar\" en el registro de control de TI (distinto del caso ya cerrado de Omar Pérez)." }
+];
+
+function getAcciones() {
+  const raw = localStorage.getItem("planAccionData");
+  return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(ACCIONES_DEFAULT));
+}
+function setAcciones(arr) { localStorage.setItem("planAccionData", JSON.stringify(arr)); }
+
+function inicializarAcciones() { renderAcciones(); }
+
+function renderAcciones() {
+  const acciones = getAcciones();
+  const cont = document.getElementById("acciones-container");
+  cont.innerHTML = "";
+  acciones.forEach((a, i) => {
+    const div = document.createElement("div");
+    div.className = "accion-item";
+    div.innerHTML = `
+      <div class="num">${i + 1}</div>
+      <div class="body" contenteditable="true" onblur="editarAccion(${i}, this.innerHTML)">${a.texto}</div>
+      <button class="btn-mini btn-remove" onclick="eliminarAccion(${i})" style="align-self:flex-start;">✕</button>`;
+    cont.appendChild(div);
+  });
+}
+
+function editarAccion(i, html) {
+  const acciones = getAcciones();
+  if (!acciones[i]) return;
+  acciones[i].texto = html;
+  setAcciones(acciones);
+}
+function eliminarAccion(i) {
+  const acciones = getAcciones();
+  acciones.splice(i, 1);
+  setAcciones(acciones);
+  renderAcciones();
+}
+function agregarAccion() {
+  const acciones = getAcciones();
+  acciones.push({ texto: "<strong>Nueva acción</strong> — edita este texto." });
+  setAcciones(acciones);
+  renderAcciones();
+}
+function restablecerAcciones() {
+  if (!confirm("¿Restablecer el plan de acción a los valores originales? Se perderán los cambios guardados en este navegador.")) return;
+  localStorage.removeItem("planAccionData");
+  renderAcciones();
+}
+
+function renderFlujo() {
+  const pasos = getFlujo();
+  const cont = document.getElementById("flujo-container");
+  cont.innerHTML = "";
+  pasos.forEach((paso, i) => {
+    if (i > 0) {
+      const arrow = document.createElement("div");
+      arrow.className = "flow-arrow";
+      arrow.textContent = "→";
+      cont.appendChild(arrow);
+    }
+    const div = document.createElement("div");
+    div.className = "flow-step";
+    div.innerHTML = `
+      <button class="btn-mini btn-remove" onclick="eliminarPaso(${i})">✕</button>
+      <div class="step-num">${i + 1}</div>
+      <div class="step-title" contenteditable="true" onblur="editarPaso(${i},'title',this.textContent)">${paso.title}</div>
+      <div class="step-desc" contenteditable="true" onblur="editarPaso(${i},'desc',this.textContent)">${paso.desc}</div>
+      <div class="flow-owner" contenteditable="true" onblur="editarPaso(${i},'owner',this.textContent)">${paso.owner}</div>`;
+    cont.appendChild(div);
+  });
+  const addCard = document.createElement("div");
+  addCard.className = "add-step-card";
+  addCard.textContent = "+ Agregar paso";
+  addCard.onclick = agregarPaso;
+  cont.appendChild(addCard);
+}
+
+function editarPaso(i, campo, valor) {
+  const pasos = getFlujo();
+  if (!pasos[i]) return;
+  pasos[i][campo] = valor;
+  setFlujo(pasos);
+}
+function eliminarPaso(i) {
+  const pasos = getFlujo();
+  pasos.splice(i, 1);
+  setFlujo(pasos);
+  renderFlujo();
+}
+function agregarPaso() {
+  const pasos = getFlujo();
+  pasos.push({ title: "Nuevo paso", desc: "Descripción del paso — edita este texto.", owner: "Responsable" });
+  setFlujo(pasos);
+  renderFlujo();
+}
+function restablecerFlujo() {
+  if (!confirm("¿Restablecer el flujo del proceso a los valores originales? Se perderán los cambios guardados en este navegador.")) return;
+  localStorage.removeItem("flujoProcesoData");
+  renderFlujo();
+}
 </script>
 
 </body>
