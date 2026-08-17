@@ -456,9 +456,9 @@ const SHEET_CONFIG = {
   // El ID va en la URL de tu Sheet: .../d/ESTE_ES_EL_ID/edit
   SPREADSHEET_ID: "1FJHj0QqW9hTbK7VYvRO1dMOMpYLlzGipZkmBwxcnsdw",
   // Nombre EXACTO de la pestaña que quieres leer (ej. "Totalizador" o "Resumen de solicitudes")
-  SHEET_NAME: "actualizaciones",
+  SHEET_NAME: "Detalle de actualizaciones",
   // Nombre EXACTO de la pestaña con el detalle fila por fila (ej. "Detalle de actualizaciones")
-  DETAIL_SHEET_NAME: "Detalle de actualizaciones",
+  DETAIL_SHEET_NAME: "Detalle de las solicitudes",
   // Umbrales del objetivo (se pueden ajustar aquí sin tocar el resto del HTML)
   UMBRAL_MINIMO: 0.75,
   UMBRAL_META: 0.80
@@ -474,8 +474,6 @@ const SHEET_CONFIG = {
 
 async function cargarDatosSheet() {
   const { SPREADSHEET_ID, SHEET_NAME } = SHEET_CONFIG;
-  const UMBRAL_MINIMO = getUmbralMinimo();
-  const UMBRAL_META = getUmbralMeta();
   if (!SPREADSHEET_ID || SPREADSHEET_ID.startsWith("PEGA_AQUI")) {
     console.warn("SHEET_CONFIG.SPREADSHEET_ID no configurado — se muestran los datos manuales cargados en el HTML.");
     return;
@@ -491,17 +489,42 @@ async function cargarDatosSheet() {
 
     // Fila 0 = encabezados (VP/DIRECCIÓN, N SOLICITUDES, APROBADAS, PENDIENTES, %EJECUCION, NOTA...)
     // Se asume: col A=VP, B=N Solicitudes, C=Aprobadas, D=Pendientes, E=%Ejecución, F=Nota
+    // Después de la fila "Total" pueden venir secciones de Umbrales del Objetivo y Accionable Superior
+    // en la MISMA pestaña — se leen aparte para no mezclarlas con los datos de VP.
     const parsed = [];
+    let collectingVP = true;
+    let umbralMinimoSheet = null, umbralMetaSheet = null;
+    let accionableMax = null, accionableAprob = null;
+
     rows.forEach(r => {
       const c = r.c;
-      if (!c || !c[0] || !c[0].v) return;
-      const vp = String(c[0].v).trim();
-      if (vp.toLowerCase() === "total") return; // recalculamos el total nosotros
-      const nSol = c[1] ? Number(c[1].v) || 0 : 0;
-      const aprob = c[2] ? Number(c[2].v) || 0 : 0;
-      const nota = c[5] ? String(c[5].v || "") : "";
-      if (nSol === 0 && aprob === 0) return; // fila vacía
-      parsed.push({ vp, nSol, aprob, pendientes: nSol - aprob, nota });
+      if (!c || !c[0] || c[0].v == null) return;
+      const label = String(c[0].v).trim();
+      const labelLower = label.toLowerCase();
+
+      if (collectingVP) {
+        if (labelLower === "total") { collectingVP = false; return; }
+        const nSol = c[1] ? Number(c[1].v) || 0 : 0;
+        const aprob = c[2] ? Number(c[2].v) || 0 : 0;
+        const nota = c[5] ? String(c[5].v || "") : "";
+        if (nSol === 0 && aprob === 0) return; // fila vacía / título / encabezado
+        parsed.push({ vp: label, nSol, aprob, pendientes: nSol - aprob, nota });
+        return;
+      }
+
+      // Después del Total: buscar Umbrales del Objetivo y Accionable Superior
+      if (labelLower.includes("mínimo") || labelLower.includes("minimo")) {
+        const v = c[1] && c[1].v != null ? Number(c[1].v) : null;
+        if (v != null && !isNaN(v)) umbralMinimoSheet = v > 1 ? v / 100 : v;
+      } else if (labelLower.includes("meta")) {
+        const v = c[1] && c[1].v != null ? Number(c[1].v) : null;
+        if (v != null && !isNaN(v)) umbralMetaSheet = v > 1 ? v / 100 : v;
+      } else if (labelLower.includes("vicepresidencia")) {
+        const maxV = c[1] && c[1].v != null ? Number(c[1].v) : null;
+        const aprobV = c[2] && c[2].v != null ? Number(c[2].v) : null;
+        if (maxV != null && !isNaN(maxV)) accionableMax = maxV;
+        if (aprobV != null && !isNaN(aprobV)) accionableAprob = aprobV;
+      }
     });
 
     if (parsed.length === 0) throw new Error("Sin filas de datos reconocidas");
@@ -513,11 +536,35 @@ async function cargarDatosSheet() {
     const pctGeneral = totalSol > 0 ? totalAprob / totalSol : 0;
     window.__ultimoPctEjecucion = pctGeneral;
 
+    // Si el Sheet trae Mínimo/Meta, ESE es el valor autoritativo (se guarda también
+    // en localStorage para que quede como respaldo si el Sheet deja de responder).
+    if (umbralMinimoSheet !== null) {
+      localStorage.setItem("umbral-minimo-pct", Math.round(umbralMinimoSheet * 100));
+      document.getElementById("kpi-minimo-value").textContent = Math.round(umbralMinimoSheet * 100) + "%";
+    }
+    if (umbralMetaSheet !== null) {
+      localStorage.setItem("umbral-meta-pct", Math.round(umbralMetaSheet * 100));
+      document.getElementById("kpi-meta-value").textContent = Math.round(umbralMetaSheet * 100) + "%";
+    }
+    const UMBRAL_MINIMO = umbralMinimoSheet !== null ? umbralMinimoSheet : getUmbralMinimo();
+    const UMBRAL_META = umbralMetaSheet !== null ? umbralMetaSheet : getUmbralMeta();
+
+    // Si el Sheet trae el Accionable Superior, actualiza esa tarjeta también
+    if (accionableMax !== null && accionableAprob !== null) {
+      const pctSuperior = accionableMax > 0 ? (accionableAprob / accionableMax) * 100 : 0;
+      document.getElementById("superior-avance-value").textContent = Math.round(pctSuperior) + "%";
+      document.getElementById("superior-avance-sub").textContent = `${accionableAprob} de ${accionableMax} vicepresidencias ejecutadas`;
+      const estadoAuto = pctSuperior >= 100 ? "Ejecutado" : pctSuperior > 0 ? "En Proceso" : "Pendiente";
+      const statusSelect = document.getElementById("superior-status");
+      statusSelect.value = estadoAuto;
+      localStorage.setItem("superior-status", estadoAuto);
+      actualizarColorSuperior();
+    }
+
     // ---- KPIs ----
     document.getElementById("kpi-ejecucion-value").textContent = (pctGeneral * 100).toFixed(2) + "%";
     document.getElementById("kpi-ejecucion-sub").textContent = `${totalAprob} de ${totalSol} solicitudes aprobadas / ejecutadas`;
     document.getElementById("kpi-pendientes-value").textContent = totalPend;
-    // Nota: kpi-minimo-value / kpi-meta-value NO se tocan aquí — son editables por el usuario (ver inicializarUmbralesEditables)
 
     const kpiEjecucionCard = document.getElementById("kpi-ejecucion");
     kpiEjecucionCard.className = "kpi " + (pctGeneral >= UMBRAL_META ? "good" : pctGeneral >= UMBRAL_MINIMO ? "warn" : "bad");
