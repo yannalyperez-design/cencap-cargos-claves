@@ -454,9 +454,9 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
    ===================================================================== */
 const SHEET_CONFIG = {
   // El ID va en la URL de tu Sheet: .../d/ESTE_ES_EL_ID/edit
-  SPREADSHEET_ID: "https://script.google.com/macros/s/AKfycbysDBK69aWmLHb-ODyMeQZQkhZdbG2JSrRqvr-2Tgs30cGxhBKSetH5kEIJ--irpK3A/exec",
+  SPREADSHEET_ID: "1FJHj0QqW9hTbK7VYvRO1dMOMpYLlzGipZkmBwxcnsdw",
   // Nombre EXACTO de la pestaña que quieres leer (ej. "Totalizador" o "Resumen de solicitudes")
-  SHEET_NAME: "Totalizador",
+  SHEET_NAME: "actualizaciones",
   // Nombre EXACTO de la pestaña con el detalle fila por fila (ej. "Detalle de actualizaciones")
   DETAIL_SHEET_NAME: "Detalle de actualizaciones",
   // Umbrales del objetivo (se pueden ajustar aquí sin tocar el resto del HTML)
@@ -473,7 +473,9 @@ const SHEET_CONFIG = {
    ===================================================================== */
 
 async function cargarDatosSheet() {
-  const { SPREADSHEET_ID, SHEET_NAME, UMBRAL_MINIMO, UMBRAL_META } = SHEET_CONFIG;
+  const { SPREADSHEET_ID, SHEET_NAME } = SHEET_CONFIG;
+  const UMBRAL_MINIMO = getUmbralMinimo();
+  const UMBRAL_META = getUmbralMeta();
   if (!SPREADSHEET_ID || SPREADSHEET_ID.startsWith("PEGA_AQUI")) {
     console.warn("SHEET_CONFIG.SPREADSHEET_ID no configurado — se muestran los datos manuales cargados en el HTML.");
     return;
@@ -509,13 +511,13 @@ async function cargarDatosSheet() {
     const totalAprob = parsed.reduce((s, r) => s + r.aprob, 0);
     const totalPend = totalSol - totalAprob;
     const pctGeneral = totalSol > 0 ? totalAprob / totalSol : 0;
+    window.__ultimoPctEjecucion = pctGeneral;
 
     // ---- KPIs ----
     document.getElementById("kpi-ejecucion-value").textContent = (pctGeneral * 100).toFixed(2) + "%";
     document.getElementById("kpi-ejecucion-sub").textContent = `${totalAprob} de ${totalSol} solicitudes aprobadas / ejecutadas`;
     document.getElementById("kpi-pendientes-value").textContent = totalPend;
-    document.getElementById("kpi-minimo-value").textContent = Math.round(UMBRAL_MINIMO * 100) + "%";
-    document.getElementById("kpi-meta-value").textContent = Math.round(UMBRAL_META * 100) + "%";
+    // Nota: kpi-minimo-value / kpi-meta-value NO se tocan aquí — son editables por el usuario (ver inicializarUmbralesEditables)
 
     const kpiEjecucionCard = document.getElementById("kpi-ejecucion");
     kpiEjecucionCard.className = "kpi " + (pctGeneral >= UMBRAL_META ? "good" : pctGeneral >= UMBRAL_MINIMO ? "warn" : "bad");
@@ -523,12 +525,9 @@ async function cargarDatosSheet() {
     // ---- Barra de umbrales ----
     const pctDisplay = Math.min(pctGeneral * 100, 100);
     document.getElementById("bar-fill").style.width = pctDisplay + "%";
-    document.getElementById("marker-minimo").style.left = (UMBRAL_MINIMO * 100) + "%";
-    document.getElementById("marker-meta").style.left = (UMBRAL_META * 100) + "%";
     document.getElementById("marker-actual").style.left = pctDisplay + "%";
     document.getElementById("marker-actual-label").textContent = (pctGeneral * 100).toFixed(2) + "%";
-    document.getElementById("umbral-minimo-label").textContent = Math.round(UMBRAL_MINIMO * 100);
-    document.getElementById("umbral-meta-label").textContent = Math.round(UMBRAL_META * 100);
+    recalcularBarraUmbrales();
 
     // ---- Narrativa ----
     document.getElementById("narrativa-pct").textContent = (pctGeneral * 100).toFixed(2) + "%";
@@ -626,10 +625,12 @@ function inicializarObjetivoEditable() {
   document.querySelectorAll("[data-key]").forEach(el => {
     // Los de Cargos Clave / Flujo se manejan aparte (tienen su propio data-key dinámico con índice)
     if (el.closest("#cargos-grid") || el.closest("#flujo-container")) return;
+    // kpi-minimo-value / kpi-meta-value tienen su propia lógica más abajo (recalculan la barra)
+    if (el.id === "kpi-minimo-value" || el.id === "kpi-meta-value") return;
     const key = el.dataset.key;
     const saved = localStorage.getItem(key);
-    if (saved !== null) el.textContent = saved;
-    el.addEventListener("blur", () => localStorage.setItem(key, el.textContent.trim()));
+    if (saved !== null) el.innerHTML = saved;
+    el.addEventListener("blur", () => localStorage.setItem(key, el.innerHTML.trim()));
   });
 
   const statusSaved = localStorage.getItem("superior-status");
@@ -640,6 +641,74 @@ function inicializarObjetivoEditable() {
     localStorage.setItem("superior-status", statusSelect.value);
     actualizarColorSuperior();
   });
+
+  inicializarUmbralesEditables();
+}
+
+/* =====================================================================
+   UMBRALES MÍNIMO / META — editables directo en la tarjeta, mueven la
+   barra y los colores sin tocar código. Tienen prioridad sobre
+   SHEET_CONFIG.UMBRAL_MINIMO / UMBRAL_META una vez editados aquí.
+   ===================================================================== */
+function getUmbralMinimo() {
+  const saved = localStorage.getItem("umbral-minimo-pct");
+  return saved !== null ? parseFloat(saved) / 100 : SHEET_CONFIG.UMBRAL_MINIMO;
+}
+function getUmbralMeta() {
+  const saved = localStorage.getItem("umbral-meta-pct");
+  return saved !== null ? parseFloat(saved) / 100 : SHEET_CONFIG.UMBRAL_META;
+}
+
+function inicializarUmbralesEditables() {
+  const minimoEl = document.getElementById("kpi-minimo-value");
+  const metaEl = document.getElementById("kpi-meta-value");
+
+  minimoEl.textContent = Math.round(getUmbralMinimo() * 100) + "%";
+  metaEl.textContent = Math.round(getUmbralMeta() * 100) + "%";
+
+  minimoEl.addEventListener("blur", () => {
+    const num = parseFloat(minimoEl.textContent.replace("%", "").replace(",", "."));
+    if (!isNaN(num)) {
+      localStorage.setItem("umbral-minimo-pct", num);
+      minimoEl.textContent = Math.round(num) + "%";
+      recalcularBarraUmbrales();
+    }
+  });
+  metaEl.addEventListener("blur", () => {
+    const num = parseFloat(metaEl.textContent.replace("%", "").replace(",", "."));
+    if (!isNaN(num)) {
+      localStorage.setItem("umbral-meta-pct", num);
+      metaEl.textContent = Math.round(num) + "%";
+      recalcularBarraUmbrales();
+    }
+  });
+
+  recalcularBarraUmbrales();
+}
+
+// Guarda el último % de ejecución conocido para poder recalcular la barra
+// cuando se edita Mínimo/Meta sin necesidad de volver a leer el Sheet.
+window.__ultimoPctEjecucion = window.__ultimoPctEjecucion || null;
+
+function recalcularBarraUmbrales() {
+  const umbralMinimo = getUmbralMinimo();
+  const umbralMeta = getUmbralMeta();
+  document.getElementById("marker-minimo").style.left = (umbralMinimo * 100) + "%";
+  document.getElementById("marker-meta").style.left = (umbralMeta * 100) + "%";
+  const dotMin = document.querySelector("#marker-minimo .dot-label");
+  const dotMeta = document.querySelector("#marker-meta .dot-label");
+  if (dotMin) dotMin.textContent = "Mínimo " + Math.round(umbralMinimo * 100) + "%";
+  if (dotMeta) dotMeta.textContent = "Meta " + Math.round(umbralMeta * 100) + "%";
+  const labelMin = document.getElementById("umbral-minimo-label");
+  const labelMeta = document.getElementById("umbral-meta-label");
+  if (labelMin) labelMin.textContent = Math.round(umbralMinimo * 100);
+  if (labelMeta) labelMeta.textContent = Math.round(umbralMeta * 100);
+
+  if (window.__ultimoPctEjecucion !== null) {
+    const pct = window.__ultimoPctEjecucion;
+    const kpiCard = document.getElementById("kpi-ejecucion");
+    kpiCard.className = "kpi " + (pct >= umbralMeta ? "good" : pct >= umbralMinimo ? "warn" : "bad");
+  }
 }
 
 function actualizarColorSuperior() {
